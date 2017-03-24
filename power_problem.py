@@ -34,9 +34,8 @@ FOR ALL THE RATES, ONLY USE THE BUNDLED VALUES (NOT DELIVERY).  This rate includ
 
 import csv
 import matplotlib.pyplot as plt
-import numpy as np
 from operator import itemgetter
-import matplotlib.patches as mpatches
+import statistics
 
 file = open("power_data.csv", "r")
 file2 = open("free-zipcode-database-Primary.csv", "r")
@@ -62,8 +61,6 @@ for i in range(len(data)):
         print("Average residential rate for 60610: ", data[i][-1])
 
 # ------- Problem #2 -------- #
-import statistics
-
 il_bund_list = []
 
 for i in range(len(data)):
@@ -73,9 +70,6 @@ for i in range(len(data)):
 il_bund_list.sort()
 #print(il_bund_list)
 
-#converting to floats (not sure that this is necessary)
-#for i in range(len(il_bund_list)):
-    #il_bund_list[i] = float(il_bund_list[i])
 
 bundled_rates = []
 for i in range(len(data)):
@@ -87,73 +81,64 @@ median = statistics.median(bundled_rates)
 print("The median bundled residential rate in Illinois is", median, "\n")
 
 # -------- Problem #3 -------- #
+
 #Putting zip code file into a readable list
 zip_codes_list = []
 reader = csv.reader(file2, delimiter = ',')
 for line in reader:
     zip_codes_list.append(line)
-print(zip_codes_list)
+#print(zip_codes_list)
 
-#List of IL, bundled, information
+#Creating a list for the all of the Illinois, bundled information
 il_bund_res = []
 for i in range(len(power_data)):
     if power_data[i][3] == "IL" and power_data[i][4] == "Bundled":
         il_bund_res.append(power_data[i])
-print(il_bund_res)
+#print(il_bund_res)
 
-
-highest_rate = il_bund_res.sort(key =itemgetter(8))
-print(il_bund_res[0:3][-1])
-
-
-
-'''
-il_bund_res = sorted(il_bund_res, key=lambda x: x[8])
+#Identifying the highest and lowest rates
 lowest_rate_zip = il_bund_res[0][0]
 highest_rate_zip = il_bund_res[len(il_bund_res)-1][0]
 
-with open("free-zipcode-database-Primary.csv", 'r') as f: ## the reader we usually use wasn't working correctly so I found this online
-    reader = csv.reader(f)
-    zip_code_data = list(reader)
+#Ordering the lists and finding the city which correlates with the highest/lowest rate
+zip_codes_list.sort(key = itemgetter(0))
+for j in zip_codes_list:
+    if j[0] == lowest_rate_zip:
+        lowest_city = j[2]
+        print("The city in Illinois with the lowest residential rate is " + str(lowest_city))
+    elif j[0] == highest_rate_zip:
+        highest_city = j[2]
+        print("The city in Illinois with the highest residential rate is " + str(highest_city))
 
-zip_code_data = sorted(zip_code_data, key=lambda x: x[0])
 
-print("The city with the lowest residential rate in IL is", zip_code_data[binary_search(lowest_rate_zip, zip_code_data)][2])
-print("The city with the highest residential rate in IL is", zip_code_data[binary_search(highest_rate_zip, zip_code_data)][2])
-
-'''
 # -------- Problem #4 (easier) -------- #
+#Making different lists for longitude, latitude, size, and more specific zip_code information
 longitude_list = []
 latitude_list = []
-zipcodes_list = []
+new_zip_list = []
 size_list = []
-#il_bund_res = sorted(il_bund_res, key=lambda x: x[8])
 
 for i in range(len(zip_codes_list)):
     if zip_codes_list[i][3] == "IL":
-        longitude_list.append(zip_codes_list[i][6])
-        latitude_list.append(zip_codes_list[i][5])
-        zipcodes_list.append((zip_codes_list[i][0]))
-        ''''
-        try:
-            size_list.append(float(zip_codes_list[i][10]))
-        except:
-             size_list.append(0)
-        '''
-'''
-for j in range(len(size_list)):
-    size_list[j] = size_list[j] / 100
-'''
+        if zip_codes_list[i][10]:
+            longitude_list.append(zip_codes_list[i][6])
+            latitude_list.append(zip_codes_list[i][5])
+            new_zip_list.append((zip_codes_list[i][0]))
+            size_list.append(float(zip_codes_list[i][10])/90)
 
-plt.figure(1, figsize=[4.3*2, 6.6], tight_layout=True)
-plt.subplot(1, 2, 1) # rows,columns,currentgraphnumber
-plt.scatter(longitude_list, latitude_list, s = size_list, alpha = 0.3)
+#Visual effects: plotting, sizing
+plt.figure(1, figsize=[4.3*2, 6.6], tight_layout = True)
+plt.subplot(1, 2, 1)
+plt.scatter(longitude_list, latitude_list, size_list, alpha = .5)
 
+#Labeling
 plt.xlabel("Longitude")
 plt.ylabel("Latitude")
 plt.title("Population By Zipcode")
 
 plt.show()
+
+
 
 
 
